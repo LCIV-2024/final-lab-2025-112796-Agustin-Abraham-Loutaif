@@ -56,7 +56,41 @@ class GameServiceTest {
     @Test
     void testStartGame_Success() {
         // TODO: Implementar el test para testStartGame_Success
-        
+
+        // ---------- GIVEN ----------
+
+        when(playerRepository.findById(1L))
+                .thenReturn(Optional.of(player));
+
+        when(wordRepository.findRandomWord())
+                .thenReturn(Optional.of(word));
+
+
+        when(gameInProgressRepository.findByJugadorAndPalabra(1L, word.getId()))
+                .thenReturn(Optional.empty());
+
+        GameInProgress gameInProgress = new GameInProgress();
+        gameInProgress.setJugador(player);
+        gameInProgress.setPalabra(word);
+        gameInProgress.setIntentosRestantes(7);
+        gameInProgress.setLetrasIntentadas("");
+
+        when(gameInProgressRepository.save(any(GameInProgress.class)))
+                .thenReturn(gameInProgress);
+
+        GameResponseDTO response = gameService.startGame(1L);
+
+        assertNotNull(response, "La respuesta no debe ser null");
+        assertEquals(7, response.getIntentosRestantes(), "Debe tener los intentos iniciales");
+        assertTrue(response.getPalabraOculta().contains("_"), "La palabra debe estar oculta");
+        assertEquals(0, response.getLetrasIntentadas().size(), "No debe tener letras intentadas");
+
+        assertTrue(word.getUtilizada(), "La palabra debe quedar marcada como utilizada");
+
+        verify(playerRepository).findById(1L);
+        verify(wordRepository).findRandomWord();
+        verify(wordRepository).save(word);
+        verify(gameInProgressRepository).save(any(GameInProgress.class));
     }
 
     @Test

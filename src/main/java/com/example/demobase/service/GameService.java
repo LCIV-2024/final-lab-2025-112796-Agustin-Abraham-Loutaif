@@ -98,14 +98,15 @@ public class GameService {
         );
 
         // Verificar si la letra está en la palabra
-        Set<Character> palabraJuego = stringToCharSet(gameInProgress.getPalabra().getPalabra().toUpperCase());
+        String palabraFormateada = gameInProgress.getPalabra()
+                .getPalabra()
+                .toUpperCase()
+                .replace("", ",")
+                .substring(1);
 
-        System.out.println("=== DEBUG ===");
-        System.out.println("Palabra: " + gameInProgress.getPalabra().getPalabra());
-        System.out.println("Set palabraJuego: " + palabraJuego);
-        System.out.println("Letra jugada: " + letraJugada);
-        System.out.println("Contiene? " + palabraJuego.contains(letraJugada));
-        System.out.println("=================");
+
+        Set<Character> palabraJuego = stringToCharSet(palabraFormateada);
+
         // Decrementar intentos solo si la letra es incorrecta
         if (!palabraJuego.contains(letraJugada)) { gameInProgress.setIntentosRestantes(gameInProgress.getIntentosRestantes() - 1); }
 
