@@ -1,1 +1,37 @@
 # TODO: Implementar el docker-compose.yml
+services:
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: demobase
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    ports: [ "3306:3306" ]
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  ahorcado-service:
+    container_name: AhorcadoService
+    build:
+      context: .
+      dockerfile: Dockerfile
+    mem_limit: 512m
+    mem_reservation: 256m
+    ports: [ "8080:8080" ]
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/demobase?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/players"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mysql_data:
